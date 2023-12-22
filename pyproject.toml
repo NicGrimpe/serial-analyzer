@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "serial-analyzer"
+version = "0.1.0"
+description = ""
+authors = ["Nicolas Gariépy <ngariepy1999@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "serial-analyzer"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyserial = "^3.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
