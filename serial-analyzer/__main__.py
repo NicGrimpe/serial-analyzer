@@ -4,7 +4,9 @@ import usb.control
 import time
 import array
 import json
+import math
 
+from .terminalscope import TerminalScope 
 
 # Test by Arduino
 VENDER = 0x16c0
@@ -57,9 +59,55 @@ class LibusbSerial:
   def write(self, text):
     self.dev.write(EP_OUT, text)
 
+def mean(values):
+    return sum(values) / len(values)
+
+
+def normalized_rms(values):
+  minbuf = int(mean(values))
+  samples_sum = 0
+  for sample in values:
+    samples_sum += float(sample - minbuf)**2
+
+  return math.sqrt(samples_sum / len(values))
+
 
 if __name__ == "__main__":
   ser = LibusbSerial()
+
+  # RAW
+  # while True:
+  #   rx = ser.read()
+  #   print(rx)
+  #   time.sleep(0.001)
+
+
+  # SCOPE
+  scope = TerminalScope(['rx'],
+                          [0, 100],
+                          ['#'],
+                          refresh_mode=False)
+  
+  samples = []
+
   while True:
-    print(ser.read())
-    time.sleep(0.001)
+    rx = ser.read()
+    for i in rx:
+      samples.append(i)
+      if len(samples) > 300:
+        magnitude = normalized_rms(samples)
+        # print(magnitude)
+        samples = []
+        scope.plot([magnitude])
+
+
+  # TO FILE
+  # stop = time.time() + 5
+  # with open(".samples", "w+") as f:
+  #   while time.time() < stop:
+  #       rx = ser.read()
+  #       print(rx)
+
+  #       for i in rx:
+  #         print(i)
+  #         f.write(f"{i},")
